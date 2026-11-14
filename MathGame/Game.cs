@@ -64,7 +64,7 @@ public static class Game
         }
 
 
-        if (operation == Operation.Division && (num2 == 0 || num1 % num2 != 0 || num1 > num2))
+        if (operation == Operation.Division && (num2 == 0 || num1 % num2 != 0 || num1 < num2))
             return GenerateNumbers(operation);
 
         return (num1, num2);
