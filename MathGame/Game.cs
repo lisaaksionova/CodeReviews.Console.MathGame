@@ -4,7 +4,7 @@ namespace MathGame;
 
 public static class Game
 {
-    private static List<(int, TimeSpan)> games = [];
+    private static List<(int Points, TimeSpan Time, DifficultyLevel Level)> games = [];
     private readonly static string[] mathOperators = ["+", "-", "*", "/"];
     private static readonly Random random = new();
     private static DifficultyLevel difficultyLevel = DifficultyLevel.Easy;
@@ -28,7 +28,7 @@ public static class Game
         Console.WriteLine($"\nPoints for this round: {points}");
         Console.WriteLine($"Time spent: {sw.Elapsed:hh\\:mm\\:ss\\.fff}");
 
-        games.Add((points, sw.Elapsed));
+        games.Add((points, sw.Elapsed, difficultyLevel));
     }
 
     public static void ShowHistory()
@@ -38,34 +38,42 @@ public static class Game
 
         for (int i = 0; i < games.Count; i++)
         {
-            Console.WriteLine($"Points gained in {i + 1} game : {games[i].Item1}");
-            Console.WriteLine($"Time spent on {i + 1} game : {games[i].Item2:hh\\:mm\\:ss\\.fff}");
+            Console.WriteLine($"Points gained in {i + 1} game : {games[i].Points}");
+            Console.WriteLine($"Time spent on {i + 1} game : {games[i].Time:hh\\:mm\\:ss\\.fff}");
+            Console.WriteLine($"Level: {games[i].Level}");
+            Console.WriteLine();
         }
         Console.WriteLine();
     }
 
     private static (int, int) GenerateNumbers(Operation operation)
     {
+        bool areValidNumbers = true;
         int num1 = 0, num2 = 0;
-        switch (difficultyLevel)
+        do
         {
-            case DifficultyLevel.Easy:
-                num1 = random.Next(0, 10);
-                num2 = random.Next(0, 10);
-                break;
-            case DifficultyLevel.Intermediate:
-                num1 = random.Next(0, 100);
-                num2 = random.Next(0, 100);
-                break;
-            case DifficultyLevel.Advanced:
-                num1 = random.Next(0, 1000);
-                num2 = random.Next(0, 1000);
-                break;
-        }
+            switch (difficultyLevel)
+            {
+                case DifficultyLevel.Easy:
+                    num1 = random.Next(0, 10);
+                    num2 = random.Next(0, 10);
+                    break;
+                case DifficultyLevel.Intermediate:
+                    num1 = random.Next(0, 100);
+                    num2 = random.Next(0, 100);
+                    break;
+                case DifficultyLevel.Advanced:
+                    num1 = random.Next(0, 1000);
+                    num2 = random.Next(0, 1000);
+                    break;
+            }
 
+            areValidNumbers = true;
 
-        if (operation == Operation.Division && (num2 == 0 || num1 % num2 != 0 || num1 < num2))
-            return GenerateNumbers(operation);
+            if (operation == Operation.Division && (num2 == 0 || num1 % num2 != 0 || num1 < num2))
+                areValidNumbers = false;
+
+        } while (!areValidNumbers);
 
         return (num1, num2);
     }
@@ -101,13 +109,19 @@ public static class Game
 
     private static int GetAnswer()
     {
-        bool userInput = int.TryParse(Console.ReadLine(), out int result);
-
-        if (!userInput)
+        int result;
+        bool validInput;
+        do
         {
-            Console.Write("Incorrect format. Try again: ");
-            return GetAnswer();
-        }
+            validInput = int.TryParse(Console.ReadLine(), out result);
+
+            if (!validInput)
+            {
+                Console.Write("Incorrect format. Try again: ");
+            }
+
+        } while (!validInput);
+
         return result;
     }
 }
